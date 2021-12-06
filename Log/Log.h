@@ -5,6 +5,43 @@
 #ifndef RABBIT_LOGDB_LOG_H
 #define RABBIT_LOGDB_LOG_H
 
+namespace RabbitLog{
+    class LogLevel{
+    public:
+        /**
+         * @brief 日志级别枚举
+         */
+         enum Level{
+             //未知级别
+             UNKNOW = 0,
+             //DEBUG级别
+             DEBUG = 1,
+             //INFO级别
+             INFO = 2,
+             //WARN级别
+             WARN = 3,
+             //ERROR级别
+             ERROR = 4,
+             //FATAL级别
+             FATAL = 5
+         };
+         /**
+          * @brief 将日志级别转成文本输出
+          * @param[in] str 日志级别文本
+          */
+          static const char* ToString(LogLevel::Level level);
 
+          /**
+           * @brief 将文本转换成日志级别
+           * @parm[in] str 日志级别文本
+           */
+           static LogLevel::Level FromString(const std::string& str);
+    };
+    class Log{
+    private:
+        LogLevel level; //日志级别
+
+    };
+}
 
 #endif //RABBIT_LOGDB_LOG_H
