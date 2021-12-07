@@ -5,6 +5,9 @@
 #ifndef RABBIT_LOGDB_LOG_H
 #define RABBIT_LOGDB_LOG_H
 
+
+#include <stdint.h>
+
 namespace RabbitLog{
     class LogLevel{
     public:
@@ -37,6 +40,27 @@ namespace RabbitLog{
            */
            static LogLevel::Level FromString(const std::string& str);
     };
+
+
+    /**
+     * @brief 日志事件
+     */
+    class LogEvent{
+    private:
+        /// 文件名
+        const char* m_file = nullptr;
+        /// 行号
+        int32_t m_line = 0;
+        /// 程序开始到现在的毫秒数
+        uint32_t m_elapse = 0;
+        /// 线程ID
+        uint32_t m_threadId = 0;
+        /// 协程ID
+        uint32_t m_fiberId = 0;
+
+    };
+
+
     class Log{
     private:
         LogLevel level; //日志级别
