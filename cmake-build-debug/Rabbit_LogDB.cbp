@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Rabbit_LogDB"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Rabbit_LogDB">
+				<Option output="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Rabbit_LogDB" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/reebdeve/CLionProjects/Rabbit_LogDB/DB"/>
+					<Add directory="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Log"/>
+					<Add directory="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Utils"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 Rabbit_LogDB"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Rabbit_LogDB/fast">
+				<Option output="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Rabbit_LogDB" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/Users/reebdeve/CLionProjects/Rabbit_LogDB/DB"/>
+					<Add directory="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Log"/>
+					<Add directory="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Utils"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.5/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/System/Library/Frameworks"/>
+					<Add directory="/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 Rabbit_LogDB/fast"/>
+					<CompileFile command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j8 -f &quot;/Users/reebdeve/CLionProjects/Rabbit_LogDB/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/DB/LSMKVDB.h">
+			<Option target="Rabbit_LogDB"/>
+		</Unit>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/DB/command.h">
+			<Option target="Rabbit_LogDB"/>
+		</Unit>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Log/Log.cpp">
+			<Option target="Rabbit_LogDB"/>
+		</Unit>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Log/Log.h">
+			<Option target="Rabbit_LogDB"/>
+		</Unit>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Utils/mutex.h">
+			<Option target="Rabbit_LogDB"/>
+		</Unit>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/Utils/singleton.h">
+			<Option target="Rabbit_LogDB"/>
+		</Unit>
+		<Unit filename="/Users/reebdeve/CLionProjects/Rabbit_LogDB/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
