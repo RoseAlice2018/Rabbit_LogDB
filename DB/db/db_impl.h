@@ -1,0 +1,6 @@
+
+namespace Rabbitdb{
+    class MemTable;
+
+    
+}
