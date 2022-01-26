@@ -9,7 +9,7 @@
 #include<cstdint>
 #include<cstdio>
 
-namespace ldb{
+namespace Rabbitdb{
     struct Options;
     struct ReadOptions;
     struct WriteOptions;
