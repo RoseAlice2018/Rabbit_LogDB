@@ -39,7 +39,7 @@ namespace Rabbitdb{
         // success, and a non-ok status on error.It is not an error if "key"
         // did not exist in the database.
         // Note: consider setting options.sync = true.
-        virtual Status Delete(const WriteOptions* options,const Slice& key)=0;
+        virtual Status Delete(const WriteOptions& options,const Slice& key)=0;
 
         // Apply the specified updates to the database.
         // Returns OK on success,non-OK on failure.

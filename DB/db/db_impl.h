@@ -86,6 +86,23 @@ namespace Rabbitdb{
             void CompactMemTable() EXCLUSIVE_LOCKS_REQUIRED(mutex_);
 
 
+            Status RecoverLogFile(uint64_t log_number,bool last_log,bool* save_manifest,
+                                VersionEdit* edit,SequenceNumber* max_sequence)
+                                EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+            Status WriteLevel0Table(MemTable* mem,VersionEdit* edit,Version* base)
+                    EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+            
+            Status MakeRoomForWrite(bool force/* compact even if there is room */)
+                    EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+            
+            WriteBatch* BuildBatchGroup(Writer** last_writer)
+                    EXCLUSIVE_LOCKS_REQUIRED(mutex_);
+            
+            void RecordBackgroundError(const Status& s);
+
+            
+
+
     };   
     
 }
