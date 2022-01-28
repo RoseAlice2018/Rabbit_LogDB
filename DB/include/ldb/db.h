@@ -9,11 +9,34 @@
 #include<cstdint>
 #include<cstdio>
 
+#include "ldb/status.h"
+#include "ldb/slice.h"
+
 namespace Rabbitdb{
     struct Options;
     struct ReadOptions;
     struct WriteOptions;
     class  WriteBatch;
+
+
+    // Abstract handle to particular state of a DB.
+    // A Snapshot is an immutable object and can therefore be safely
+    // accessed from multiple threads without any external synchronization.
+    class Snapshot{
+        protected:
+        virtual ~Snapshot();
+    };
+
+    // A range of keys
+    struct Range{
+        Range() = default;
+        Range(const Slice& s,const Slice& l):start(s),limit(l){}
+        Slice start;// Included in the range
+        Slice limit;// Not included in the range
+    };
+
+
+
     class DB{
         public:
         //Open the database with the specified "name".
@@ -121,7 +144,8 @@ namespace Rabbitdb{
     //
     // Note: For backwards compatibility, if DestoryDB is unable to list
     // the database files, Status::OK() will still be returned masking this failure.
-    Status DestroyDB(const std::string& name,const Options& options);
+    Status DestroyDB(const std::string& name,
+                                const Options& options);
 
     // If a DB cannot be opened,you may attempt to call this method to
     // resurrect as much of the contents of the database as possible.

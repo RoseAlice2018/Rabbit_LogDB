@@ -2,15 +2,19 @@
 #define STORAGE_LEVELDB_DB_DB_IMPL_H_
 
 #include <string>
-
+#include <stdint.h>
 
 #include "ldb/db.h"
 #include "ldb/slice.h"
 #include "ldb/status.h"
 #include "port/thread_annotations.h"
+#include "ldb/iterator.h"
+#include "db/dbformat.h"
+#include "ldb/options.h"
+#include "ldb/version_edit.h"
+#include "ldb/version_set.h"
 namespace Rabbitdb{
     class MemTable;
-
     class DBImpl:public DB{
         public:
         DBImpl(const Options& options,const std::string& dbname);
@@ -63,7 +67,7 @@ namespace Rabbitdb{
                 int64_t bytes_written;
             };
 
-            Iterator* NewInternalIterator(const ReadOption&,
+            Iterator* NewInternalIterator(const ReadOptions&,
                                 SequenceNumber* latest_snapshot,
                                 uint32_t* seed);
             
