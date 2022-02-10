@@ -99,7 +99,16 @@ namespace Rabbitdb{
             const Comparator* user_comparator()const {return user_comparator_;}
             int Compare(const InternalKey& a,const InternalKey& b)const;
     };
-
+    // Filter policy wrapper that converts from internal keys to user keys
+    class InternalFilterPolicy:public FilterPolicy{
+        private:
+            const FilterPolicy* const user_policy_;
+        public:
+            explicit InternalFilterPolicy(const FilterPolicy* p):user_policy_(p){}
+            const char* Name()const override;
+            void CreateFilter(const Slice* keys,int n,std::string* dst)const override;
+            bool KeyMayMatch(const Slice& key,const Slice& filter)const override;
+    };
 
 
     // Modules in this directory should keep internal keys wrapped inside
