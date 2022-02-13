@@ -49,7 +49,72 @@ bool begin = true;
 然后进入一个do{}while循环，直到写入出错，或者成功写入全部数据，如下
 1. step1 
 首先查看当前block是否<7,如果<7则不惟，并重置block偏移
-```
+```  
 dest_->Append(Slice("\x00\x00\x00\x00\x00\x00",leftover));
 block_offset_ = 0;
 ```
+2. step2
+计算block剩余大小，以及本次log record可写入数据长度
+```
+const size_t avail = kBlockSize - block_offset_ - kHeaderSize;
+const size_t fragment_length = (left < avail) ? left : avail;
+```
+3. step3
+判断log type
+```
+RecordType type;
+const bool end = (left == fragment_length);// 两者相等 表明 left < avail 足以在剩余block中写完
+if(begin && end) type = kFullType;
+else if(begin)   type = kFirstType;
+else if(end)     type = kLastType;
+else             type = kMiddleType;
+```
+4. step4
+调用EmitPhysicalRecord函数，append日志；
+并更新指针，剩余长度和begin标记
+```
+s = EmitPhysicalRecord(type,ptr,fragment_length);
+ptr += fragment_length;
+left -= fragment_length;
+begin = false;
+```
+- EmitPhysicalRecord函数
+StatusWriter::EmitPhysicalRecord(RecordType t,const char* ptr,size_t n)
+参数ptr为用户record数据，参数n为record长度，不包含log header。
+1. step1
+计算header，并Append到log文件，header共7byte格式为：
+```
+|CRC32(4Byte) | payload length lower + high (2 byte) | type (1 byte)|
+char buf[kHeaderSize];
+buf[4] = static_cast<char>(n & 0xff);
+buf[5] = static_cast<char>(n >> 8);
+buf[6] = static_cast<char>(t); // 计算record type和payload的CRC校验值
+uint32_t crc = crc32c ::Extend(type_crc[t],ptr,n);
+crc = crc32c::Mask(crc);
+EncodeFixed32(buf,crc);
+dest_->Append(Slice(buf,kHeaderSize));
+```
+2. step2
+写入payload，并flush，更新block当前偏移
+```
+s = dest_->Append(Slice(ptr,n));
+s = dest_->Flush();
+block_offset_ += kHeaderSize + n;
+```
+
+
+### 读日志
+
+#### Reader类
+Reader主要用到两个接口，一个是汇报错误的Reporter，另一个是log文件读取类SequentialFile。
+
+- Reporter的接口
+```
+void Corruption(size_t bytes,const Status& status);
+``` 
+- SequentialFile 接口
+```
+Status Read(size_t n,Slice* result,char* scratch);
+Status Skip(uint64_t n);
+```
+
