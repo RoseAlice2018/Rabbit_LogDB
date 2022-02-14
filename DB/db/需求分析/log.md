@@ -117,4 +117,34 @@ void Corruption(size_t bytes,const Status& status);
 Status Read(size_t n,Slice* result,char* scratch);
 Status Skip(uint64_t n);
 ```
+- Reader 类
+```
+- SequenctialFile* const file_
+- Reporter* const reporter_
+----------------------------------
++ bool ReadRecord(Slice* record,string* scratch)()
++ uint64_t LastRecordOffset()()
+```
+Reader类有几个成员变量，需要注意
+```
+bool eof_ ; // 上次Read()返回长度 < kBlockSize,暗示到了文件结尾EOF
+uint64_t last_record_offset_; // 函数ReadRecord返回的上一个record的偏移
+uint64_t end_of_buffer_offset_; // 当前的读取偏移
+uint64_t const initial_offset_; // 偏移，从哪里开始读取第一条record
+Slice    buffer_;               // 读取的内容
+```
 
+#### 日志读取流程
+
+Reader只有一个接口，那就是ReadRecord，下面来分析这个函数。
+
+1. 
+根据初始的initial offset跳转到调用者指定的位置，开始读取日志文件，跳转就是直接调用SequentialFile的Seek接口。
+
+另外，需要先调整调用者传入的initialoffset参数，调整和跳转逻辑在SkipToInitialBlock函数中。
+```
+if (last_record_offset_ < initial_offset_)
+{
+    // 当前偏移 < 指定的偏移 ，需要
+}
+```
