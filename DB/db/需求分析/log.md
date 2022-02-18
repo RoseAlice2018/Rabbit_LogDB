@@ -145,6 +145,50 @@ Reader只有一个接口，那就是ReadRecord，下面来分析这个函数。
 ```
 if (last_record_offset_ < initial_offset_)
 {
-    // 当前偏移 < 指定的偏移 ，需要
+    // 当前偏移 < 指定的偏移 ，需要Seek
+        if(!SkipToInitialBlock())return false;
 }
 ```
+下面的代码是SkipToInitialBlock函数调整read offset 的逻辑
+```
+// 计算在block内的偏移位置，并圆整到开始读取block的起始位置
+size_t offset_in_block =initial_offset_ % kBlockSize;
+uint64_t block_start_location = initial_offset_ - offset_in_block;
+// 如果偏移在最后的6byte里，肯定不是一条完整的记录，跳到下一个block
+if (offset_in_block > kBlockSize-6)
+{
+    offset_in_block = 0;
+    block_start_location += kBlockSize;   
+}
+end_of_buffer_offset_ = block_start_location;
+// 设置读取偏移
+if (block_start_location > 0) file_->Skip(block_start_location);// 跳转
+```
+首先计算出在block内的偏移位置，然后圆整到要读取block的起始位置。
+开始读取日志的时候都要保证读取的是完整的block，这就是调整的目的。
+
+同时成员变量end_of_buffer_offset_记录了这个值，在后续读取中会用到。
+
+2.
+在开始while循环前首先初始化几个标记：
+```
+// 当前是否在fragment内，也就是遇到了FIRST 类型的record
+bool in_fragmented_record = false;
+uint64_t prospective_record_offset = 0 ;// 我们正在读取的逻辑record的偏移
+```
+3.
+进入到while(true)循环，直到读取到KLastType或者KFullType的record，或者到了文件末尾。
+从日志文件读取完整的record是ReadPhysicalRecord函数完成的。
+
+读取出现错误时，并不会退出循环，而是汇报错误，继续执行，直到成功读取一条user record，或者遇到文件末尾。
+
+3.1 
+从文件读取record
+```
+uint64_t physical_record_offset = end_of_buffer_offset_ - buffer.size();
+const unsigned int record_type = ReadPhysicalRecord(&fragment);
+```
+
+### 从log文件中读取record
+
+
