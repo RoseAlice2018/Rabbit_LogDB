@@ -143,3 +143,14 @@ block的预计大小，从函数实现来看，应该在调用Finish之前调用
 
 ##### block类接口
 
+对Block的读取是由类block完成的。
+block只有两个函数接口，通过Iterator对象，调用者可以遍历访问block所有的存储的kv对
+```
+size_t size() const {return size_;}
+Iterator* NewIterator(const Comparator* comparator);
+
+const char* data_;  // block数据指针
+size_t size_;       // block数据大小
+uint32_t restart_offset_; // 重启点数组在data_中的偏移
+bool owned_;        // data_[]是否是block拥有的
+```
