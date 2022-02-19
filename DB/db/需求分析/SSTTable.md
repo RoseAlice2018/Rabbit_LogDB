@@ -154,3 +154,73 @@ size_t size_;       // block数据大小
 uint32_t restart_offset_; // 重启点数组在data_中的偏移
 bool owned_;        // data_[]是否是block拥有的
 ```
+
+##### block初始化
+
+block的构造函数接受一个Blockcontents对象 contents初始化，
+BlockContents是一个有着3个成员的结构体。
+```
+- data = Slice();
+- cachable = false;// 无cache
+- heap_allocated = false;// 非heap分配
+```
+根据contents为成员赋值
+```
+data_ = contents.data.data(),
+size_ = contents.data.size(),
+owned_ = contents.heap_allocated;
+```
+然后从data中解析出重启点数组，如果数据太小，或者重启点计算错误，就设置size_ = 0,
+表明该block data解析失败。
+
+##### Block::Iter
+这是一个用以遍历Block内部数据的内部类，它继承了Iterator接口。
+函数NewIterator返回Block::Iter对象：
+```
+return new Iter(cmp,data_,restart_offset_,num_restarts);
+```
+下面我们就分析Iter的实现。
+主要成员变量有：
+```
+const Comparator* constcomparator_; // Key比较器
+const char* const data_;            // block内容
+uint32_t const restarts_;           // 重启点（uint32数组）在data中的偏移
+uint32_t const num_restarts_;       // 重启点个数
+uint32_t current_;                  // 当前entry在data中的偏移，
+```
+下面来看看对Iterator接口的实现
+
+###### Next()函数 
+直接调用private函数ParseNextKey()跳到下一个k/v对，函数实现如下
+1. Step1
+**跳到下一个entry，其位置紧邻在当前value_之后。如果已经是最后一个entry了，返回false，标记current_为invalid。**
+2. Step2
+**解析出entry，解析出错则设置错误状态，记录错误并返回false。解析成功则根据信息组成key和value，并更新重启点index**
+
+###### Prev()函数
+Previous操作分为两步：首先回到current_之前的重启点，然后再向后直到current_,实现如下：
+1. Step1
+首先向前回跳到在current_前面的那个重启点，并定位到重启点的kv对开始位置。
+2. Step2
+从重启点位置开始向后遍历，直到遇到original前面的那个kv对。
+
+###### Seek()函数
+1. step1
+二分查找，找到key < target 的最后一个重启点，典型的二分查找算法。
+2. step2
+找到后，跳转到重启点，其索引由left指定，这是前面二分查找到的结果。如前面所分析的，value_指向重启点的
+地址，而size_指定为0，这样ParseNextKey函数将会取出重启点的kv值。
+```
+SeekToRestartPoint(left);
+```
+3. step3
+自重启点线性向下，直到遇到key >= target 的kv对。
+```
+while(true){
+    if(!ParseNextKey())return;
+    if(Compare(key_,target)>=0)return;
+}
+```
+
+
+上面就是Block::Iter的全部实现逻辑，这样Block的创建和读取遍历都已经分析完毕。
