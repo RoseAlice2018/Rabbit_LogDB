@@ -224,3 +224,134 @@ while(true){
 
 
 上面就是Block::Iter的全部实现逻辑，这样Block的创建和读取遍历都已经分析完毕。
+
+
+### 创建SSTable文件
+
+了解了sstable文件的存储格式，以及Data Block的组织，下面就可以分析如何创建sstable文件。
+相关代码在table_builder.h/.cc 以及block_builder.h/.cc(构建block)中。
+
+#### TableBuilder类
+
+构建sstable文件的类是TableBuilder,该类提供了几个有限的方法可以用来添加kv对，Flush到文件中等等，它依赖于
+blockbuilder来构建block。
+
+- TableBuilder的几个接口如下：
+1. void Add(const Slice& key,const Slice& value)，向当前正在构建的表添加新的{key,value}对，要求
+根据Option指定的Comparator，key必须位于所有前面添加的key之后。
+2. void Flush(),将当前缓存的kv全部flush到文件中，一个高级方法，大部分client不需要直接调用该方法；
+3. void Finish(),**结束表的**的构建，该方法被调用后，将不会再使用传入的WritableFile；
+4. void Abandon(),结束表的构建，并丢弃当前缓存的内容，该方法被调用以后，将不再会使用传入的writablefile；（
+只是设置closed为true，无其他操作）
+5. 一旦**Finish()/Abandon()**方法被调用，将不能在再次执行Flush或者Add操作。
+
+TableBuilder只有一个成员变量Rep* rep_,实际上Rep结构体的成本就是TableBuilder
+所有的成员变量。
+Rep简单解释下成员的含义：
+```
+Options options;    // data block的选项
+Options index_block // index block的选项
+WritableFile* file  // sstable文件
+uint64_t offset;
+// 要写入data block在sstable文件中的偏移，初始0
+Status status;      // 当前状态-初始ok
+BlockBuilder data_block; // 当前操作的data block
+BlockBuilder index_block; // sstable的index block
+std::string last_key; 
+int64_t num_entries;      // 当前datablock的个数，初始0
+bool closed;            // 调用了Finish() or Abandon(), 初始false
+FilterBlockBuilder* filter_block;
+//根据filter数据快速定位key是否在block中
+bool pending_index_entry;   // 见下面的Add函数，初始false
+BlockHandle pending_handle; // 添加到index block的data block的信息
+std::string compressed_output; // 压缩后的data block ，临时存储，写入后即被清空
+```
+- 添加kv对
+这是通过方**Add(const Slice& key,const Slice& value)**完成的，没有返回值。
+下面分析下函数的逻辑：
+1. step1
+首先保证文件没有close，也就是没有调用过Finish/Abandon,以及保证当前status是ok的；
+如果当前有缓存的kv对，保证新加入的key是最大的。
+```
+Rep* r = rep_;
+assert(!r->closed);
+if(!ok())return;
+if(r-> num_entries > 0)
+{
+    assert(r->options.comparator->Compare(key,Slice(r->last_key))>0);
+}
+```
+2. step2
+如果标记r->pending_index_entry为true,表明遇到下一个data block的第一个kv，根据key调整
+r->last_key，这是通过Comparator的FindShortestSeparator完成的。
+```
+if(r->pending_index_entry)
+{
+    assert(r->data_block.empty());
+    r->options.comparator->FindShortestSeparator(&r->last_key,key);
+    std::string handle_encoding;
+    r->pending_handle.EncodeTo(&handle_encoding);
+    r->index_block.Add(r->last_key,Slice(handle_encoding));
+    r->pending_index_entry = false;
+}
+```
+接下来将pending_handle加入到index block中{r->last_key,r->pending_handle's string}.
+最后将r->pending_index_entry设置为false。
+
+值得讲讲pending_index_entry这个标记的意义：
+
+直到遇到下一个datablock的第一个key时，我们才为上一个datablock生成index entry,
+我们才为上一个datablock生成index entry,这样的**好处**是：
+可以为index使用较短的key;比如上一个datablock最后一个kv的key是"the quick brown fox",
+其后继data block的第一个key是"the who",我们就可以用一个较短的字符串"the r"作为
+上一个data block的index block entry的key。
+
+简而言之，就是在开始**下一个datablock**时，Leveldb才将上一个data block加入到index block中。
+标记pending_index_entry就是干这个用的，对应data block的index entry信息就保存在
+（BlockHandle）pending_handle.
+
+3. step3
+如果filter_block不为空，就把key加入到filter_block中。
+```
+if( r-> filter_block != NULL)
+{
+    r-> filter_block -> AddKey(key);
+}
+```
+
+4. step4
+设置r->last_key = key,将（key,value)添加到r->data_block中，并更新entry数。
+```
+r->last_key.assign(key.data(),key.size());
+r->num_entries++;
+r->data_block.Add(key,value);
+```
+
+5. step5
+如果data block的个数超过限制，就立即Flush到文件中。
+
+
+#### Flush 文件
+
+直接见代码
+
+#### WriteBlock函数
+
+在Flush文件时，会调用WriteBlock函数将datablock写入到文件中，该函数同时还设置**datablock**
+的**index entry**信息。
+```
+void WriteBlock(BlockBuilder* block,BlockHandle* handle)
+```
+该函数做些预处理工作，序列化要写入的data block，根据需要压缩数据，真正的写入逻辑是在
+**WriteRawBlock**函数中。下面分析该函数的处理逻辑。
+
+1. step1
+
+获得block的序列化数据Slice，根据配置参数决定是否压缩，以及根据压缩格式压缩数据内容。对于Snappy压缩，如果压缩率太低<12.5%，还是作为未压缩内容存储。
+
+2. step2
+
+将data内容写入到文件，并重置block成初始化状态，清空compressedoutput。
+
+
+#### WriteRawBlock函数
