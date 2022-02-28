@@ -355,3 +355,33 @@ void WriteBlock(BlockBuilder* block,BlockHandle* handle)
 
 
 #### WriteRawBlock函数
+在WriteBlock把准备工作都做好后，就可以写入到sstable文件中了。来看函数原型:
+```
+void WriteRawBlock(const Slice& data, CompressionType, BlockHandle*handle);
+```
+
+#### Finish函数
+
+调用Finish函数，表明调用者将所有已经添加的k/v对持久化到sstable，并关闭sstable文件。
+
+1. step1
+
+首先调用Flush，写入最后的一块data block，然后设置关闭标志closed=true。表明该sstable已经关闭，不能再添加k/v对。
+
+2. step2
+
+写入filter block到文件中。
+
+3. step3
+
+写入meta index block到文件中。
+
+如果filterblock不为NULL，则加入从"filter.Name"到filter data位置的映射。通过meta index block，可以根据filter名字快速定位到filter的数据区。
+
+4. step4
+
+写入index block，如果成功Flush过data block，那么需要为最后一块data block设置index block，并加入到index block中。
+
+5. step5
+写入Footer
+
