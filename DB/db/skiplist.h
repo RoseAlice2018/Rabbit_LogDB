@@ -131,6 +131,7 @@ namespace Rabbitdb{
 
                 // Read/written only by Insert()
                 Random rnd_;
+                // 
     };
     
 }
