@@ -131,11 +131,29 @@ namespace Rabbitdb{
 
                 // Read/written only by Insert()
                 Random rnd_;
-                // 
+    };
+
+    // Implementation details follow
+    template <typename Key,class Comparator>
+    struct SkipList<Key,Comparator>::Node{
+        explicit Node(const Key& k):  key(k){}
+
+        Key const key;
+
+        // Accessors/mutators for links. Wrapped in methods so we can
+        // add the appropriate barriers as necessary.
+        Node* Next(int n){
+            assert(n >= 0);
+            // Use an 'acquire load' so that we observe a fully initialized
+            // version of the returned Node.
+            return next_[n].load(std::memory_order_acquire);         
+        }
+        void SetNext(int n, Node* x){
+            
+        }
     };
     
 }
-
 
 
 
